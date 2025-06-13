@@ -1,20 +1,20 @@
-import os.path
-from django.db import models
-from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator, MaxValueValidator
-from django.contrib.auth import get_user_model
+import os.path #для работы с файловой системой
+from django.db import models #основа моделей Django
+from django.core.exceptions import ValidationError #для обработки ошибок валидации — когда какие-то данные не проходят проверку
+from django.core.validators import MinValueValidator, MaxValueValidator #классы помогают ограничивать значения полей
+from django.contrib.auth import get_user_model #для кастомной модели пользователя
 
-User = get_user_model()
+User = get_user_model() #будет работать как со встроенной моделью, так и с кастомной
 
 
-def validate_image_size(value):
+def validate_image_size(value): #параметр value передает Dhango загружаемый объект
     filesize = value.size
     if filesize > 2 * 1024 * 1024:
         raise ValidationError('Максимальный размер изображения 2MB')
 
 
-def validate_image_extention(value):
-    ext = os.path.split(value.name)[1]
+def validate_image_extention(value): #параметр value передает Dhango загружаемый объект
+    ext = os.path.splitext(value.name)[1] #из файла "картинка.png" вычленяем только формат .png
     validate_extentions = ['.jpg', '.jpeg', '.png']
     if not ext.lower() in validate_extentions:
         raise ValidationError('Поддерживаются только JPG и PNG форматы')
@@ -23,14 +23,14 @@ def validate_image_extention(value):
 class Genre(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
-    def __str__(self):
-        return self.name
+    def __str__(self): #метод, обозначает, что объект будет отображаться как строка
+        return self.name #возвращает значение поля name, чтобы объект красиво отображался в админке
 
 
 class Director(models.Model):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    bio = models.TextField(blank=True, null=True)
+    bio = models.TextField(blank=True, null=True) #blank=True - можно в админке оставить пустоту / null=True - можно в БД хрнанить пустоту
     photo = models.ImageField(
         upload_to='directors/',
         validators=[validate_image_size, validate_image_extention]
@@ -93,19 +93,19 @@ class Session(models.Model):
 
 
 class Booking(models.Model):
-    STATUS_CHOICES = [
-        ('confimed', 'Подтверждено'),
-        ('cancrled', 'Отменено'),
+    STATUS_CHOICES = [ #список кортежей, левая часть для БД, правая для админки
+        ('confirmed', 'Подтверждено'),
+        ('cancelled', 'Отменено'),
         ('pending', 'В обработке'),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     session = models.ForeignKey(Session, on_delete=models.CASCADE)
     seat = models.CharField(max_length=10)
     booked_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pen')
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending') #choices - можно сохранить только одно из значений
 
-    class Meta:
-        unique_together = ('session', 'seat')
+    class Meta: #внутренний класс, создает доп настройки
+        unique_together = ('session', 'seat') #одинаковая пара значений (session, seat) не может повторяться в таблице
 
     def __str__(self):
         return f'{self.user} - {self.session} - {self.seat}'
