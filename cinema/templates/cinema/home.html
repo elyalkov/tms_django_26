@@ -1,0 +1,39 @@
+{% extends 'cinema/base.html' %}
+{% comment %} {% load crispy_forms_tags %} {% endcomment %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h1>Афиша кинотеатра</h1>
+    </div>
+    <div class="col-md-6">
+        {% comment %} <form method="get" class="form-inline">
+            {{ filter_form|crispy }}
+            <button type="submit" class="btn btn-primary mt-2">Применить</button>
+        </form> {% endcomment %}
+    </div>
+</div>
+
+<div class="row">
+    {% for movie in movies %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+            <div class="card-body">
+                <h5 class="card-title">{{ movie.title }}</h5>
+                <p class="card-text">{{ movie.description|truncatechars:100 }}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary">{{ movie.release_date.year }}</span>
+                    {% if movie.rating %}
+                    <span class="badge bg-success">{{ movie.rating }}/10</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-footer">
+                {% comment %} <a href="{% url 'movie_detail' movie.pk %}" class="btn btn-sm btn-outline-primary">Подробнее</a> {% endcomment %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
