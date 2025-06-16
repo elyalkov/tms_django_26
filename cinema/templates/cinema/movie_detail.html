@@ -1,0 +1,56 @@
+{% extends 'cinema/base.html' %}
+
+{% block title %}{{ movie.title }} — Кинотеатр{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        {% if movie.poster %}
+            <img src="{{ movie.poster.url }}" alt="{{ movie.title }}" class="img-fluid rounded shadow">
+        {% else %}
+            <p>Постер отсутствует</p>
+        {% endif %}
+    </div>
+    <div class="col-md-8">
+        <h2>{{ movie.title }}</h2>
+        <p><strong>Описание:</strong> {{ movie.description }}</p>
+        <p><strong>Длительность:</strong> {{ movie.duration }} минут</p>
+        <p><strong>Дата релиза:</strong> {{ movie.retease_date|date:"d.m.Y H:i" }}</p>
+        <p><strong>Рейтинг:</strong> {{ movie.rating|default:"N/A" }}</p>
+        <p><strong>Жанры:</strong>
+            {% for genre in movie.genres.all %}
+                <span class="badge bg-secondary">{{ genre.name }}</span>
+            {% empty %}
+                Нет жанров
+            {% endfor %}
+        </p>
+        <p><strong>Режиссер:</strong> {{ movie.directors.first_name }} {{ movie.directors.last_name }}</p>
+        <p><strong>Актеры:</strong>
+            {% for actor in movie.actors.all %}
+                {{ actor.first_name }} {{ actor.last_name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                Не указаны
+            {% endfor %}
+        </p>
+    </div>
+</div>
+
+<hr>
+
+<h3>Ближайшие сеансы</h3>
+{% if session %}
+    <ul class="list-group">
+        {% for s in session %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{ s.start_time|date:"d.m.Y H:i" }}</strong>
+                    <span class="text-muted"> — {{ s.hall.name }} ({{ s.hall.seat }} мест)</span>
+                </div>
+                <span class="badge bg-primary rounded-pill">{{ s.price }} ₽</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Сеансов пока нет</p>
+{% endif %}
+{% endblock %}
