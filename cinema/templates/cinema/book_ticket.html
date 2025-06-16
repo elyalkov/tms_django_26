@@ -1,0 +1,43 @@
+{% extends 'cinema/base.html' %}
+
+{% block title %}Бронирование билета{% endblock %}
+
+{% block content %}
+<h2>Бронирование билета</h2>
+
+<div class="mb-4">
+    <h4>{{ session.movie.title }}</h4>
+    <p><strong>Дата и время:</strong> {{ session.start_time|date:"d.m.Y H:i" }}</p>
+    <p><strong>Зал:</strong> {{ session.hall.name }} ({{ session.hall.seat }} мест)</p>
+    <p><strong>Цена:</strong> {{ session.price }} ₽</p>
+</div>
+
+<form method="post" class="mb-4">
+    {% csrf_token %}
+    <div class="mb-3">
+        {{ form.seat.label_tag }}
+        {{ form.seat }}
+        {% if form.seat.errors %}
+            <div class="text-danger">
+                {{ form.seat.errors }}
+            </div>
+        {% endif %}
+    </div>
+    <button type="submit" class="btn btn-primary">Забронировать</button>
+    <a href="{% url 'home' %}" class="btn btn-secondary">Отмена</a>
+</form>
+
+<hr>
+
+<h5>Занятые места:</h5>
+{% if taken_seats %}
+    <div class="mb-3">
+        {% for seat in taken_seats %}
+            <span class="badge bg-danger m-1">{{ seat }}</span>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Все места пока свободны</p>
+{% endif %}
+
+{% endblock %}
